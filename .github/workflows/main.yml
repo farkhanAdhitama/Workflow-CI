@@ -33,7 +33,7 @@ jobs:
       #  Run as a mlflow project
       - name: Run mlflow project
         run: |
-          mlflow run MLproject
+          mlflow run Workflow-CI/MLProject
 
       - name: Upload model
         uses: actions/upload-artifact@v4
