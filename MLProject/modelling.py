@@ -18,7 +18,7 @@ max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 test_size = float(sys.argv[3]) if len(sys.argv) > 3 else 0.2
 
 # Load dataset
-df = pd.read_csv("bank_customer_preprocessed.csv")
+df = pd.read_csv("MLProject/bank_customer_preprocessed.csv")
 df = df.dropna()
 
 # Split features and target
@@ -34,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 mlflow.set_experiment("Customer_Churn_Pred")
 
 with mlflow.start_run():
-    # Train model 
+    # Train model
     model = RandomForestClassifier(
         n_estimators=n_estimators, max_depth=max_depth, random_state=42
     )
