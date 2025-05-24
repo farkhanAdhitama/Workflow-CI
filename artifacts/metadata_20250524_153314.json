@@ -1,0 +1,37 @@
+{
+  "model_info": {
+    "accuracy": 0.8034081463009144,
+    "timestamp": "20250524_153314",
+    "model_file": "model_20250524_153314.joblib"
+  },
+  "parameters": {
+    "n_estimators": 100,
+    "max_depth": 10,
+    "test_size": 0.2,
+    "random_state": 42
+  },
+  "training_metrics": {
+    "accuracy": 0.8034081463009144,
+    "f1_score": 0.05588822355289421,
+    "precision": 1.0,
+    "recall": 0.028747433264887063,
+    "roc_auc": 0.9564541669772726,
+    "log_loss": 0.425207089440632
+  },
+  "dataset_info": {
+    "shape": "9023x11",
+    "features": [
+      "CreditScore",
+      "Geography",
+      "Gender",
+      "Age",
+      "Tenure",
+      "Balance",
+      "NumOfProducts",
+      "HasCrCard",
+      "IsActiveMember",
+      "EstimatedSalary"
+    ],
+    "target": "Exited"
+  }
+}
