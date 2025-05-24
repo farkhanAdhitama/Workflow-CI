@@ -7,10 +7,16 @@ import json
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    log_loss,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
-# Enable autolog - otomatis log semua parameter, metrics, dan model
-mlflow.sklearn.autolog()
+mlflow.sklearn.autolog(disable=True)
 
 # Get parameters from command line
 n_estimators = int(sys.argv[1]) if len(sys.argv) > 1 else 100
@@ -34,19 +40,44 @@ X_train, X_test, y_train, y_test = train_test_split(
 mlflow.set_experiment("Customer_Churn_Pred")
 
 with mlflow.start_run():
-    # Train model
+    # Inisialisasi model
     model = RandomForestClassifier(
         n_estimators=n_estimators, max_depth=max_depth, random_state=42
     )
     model.fit(X_train, y_train)
 
-    # Predict untuk accuracy
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
+    # Prediksi - hanya untuk training
+    y_train_pred = model.predict(X_train)
+    y_train_proba = model.predict_proba(X_train)
 
-    # Log additional custom parameters (opsional)
+    # Calculate metrics - hanya training
+    train_accuracy = accuracy_score(y_train, y_train_pred)
+    train_f1 = f1_score(y_train, y_train_pred)
+    train_precision = precision_score(y_train, y_train_pred)
+    train_recall = recall_score(y_train, y_train_pred)
+    train_roc_auc = roc_auc_score(y_train, y_train_proba[:, 1])
+    train_log_loss_val = log_loss(y_train, y_train_proba)
+
+    # Manual logging parameters
+    mlflow.log_param("n_estimators", n_estimators)
+    mlflow.log_param("max_depth", max_depth)
     mlflow.log_param("test_size", test_size)
     mlflow.log_param("dataset_shape", f"{df.shape[0]}x{df.shape[1]}")
+    mlflow.log_param("random_state", 42)
+
+    # Manual logging metrics - Training saja
+    mlflow.log_metric("training_accuracy_score", train_accuracy)
+    mlflow.log_metric("training_f1_score", train_f1)
+    mlflow.log_metric("training_log_loss", train_log_loss_val)
+    mlflow.log_metric("training_precision_score", train_precision)
+    mlflow.log_metric("training_recall_score", train_recall)
+    mlflow.log_metric("training_roc_auc", train_roc_auc)
+    mlflow.log_metric("training_score", model.score(X_train, y_train))
+
+    # Simpan model ke MLflow
+    mlflow.sklearn.log_model(
+        model, "model", registered_model_name="RandomForest_CustomerChurn"
+    )
 
     # Save model locally untuk artifacts
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -55,17 +86,33 @@ with mlflow.start_run():
 
     # Save metadata
     metadata = {
-        "accuracy": accuracy,
-        "timestamp": timestamp,
+        "model_info": {
+            "accuracy": train_accuracy,
+            "timestamp": timestamp,
+            "model_file": model_file,
+            "run_id": mlflow.active_run().info.run_id,
+        },
         "parameters": {
             "n_estimators": n_estimators,
             "max_depth": max_depth,
             "test_size": test_size,
+            "random_state": 42,
+        },
+        "training_metrics": {
+            "accuracy": train_accuracy,
+            "f1_score": train_f1,
+            "precision": train_precision,
+            "recall": train_recall,
+            "roc_auc": train_roc_auc,
+            "log_loss": train_log_loss_val,
+        },
+        "dataset_info": {
+            "shape": f"{df.shape[0]}x{df.shape[1]}",
+            "features": list(X.columns),
+            "target": "Exited",
         },
     }
 
-    with open(f"metadata_{timestamp}.json", "w") as f:
+    metadata_file = f"metadata_{timestamp}.json"
+    with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=2)
-
-    print(f"Model trained with accuracy: {accuracy:.4f}")
-    print(f"Model saved as: {model_file}")
