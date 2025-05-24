@@ -24,7 +24,7 @@ max_depth = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 test_size = float(sys.argv[3]) if len(sys.argv) > 3 else 0.2
 
 # Load dataset
-df = pd.read_csv("bank_customer_preprocessed.csv")
+df = pd.read_csv("MLProject/bank_customer_preprocessed.csv")
 df = df.dropna()
 
 # Split features and target
@@ -90,7 +90,6 @@ with mlflow.start_run():
             "accuracy": train_accuracy,
             "timestamp": timestamp,
             "model_file": model_file,
-            "run_id": mlflow.active_run().info.run_id,
         },
         "parameters": {
             "n_estimators": n_estimators,
