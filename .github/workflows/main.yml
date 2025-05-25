@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Run actions/checkout@v3
         uses: actions/checkout@v3
 
       - name: Setup Python 3.12.7
@@ -23,7 +23,7 @@ jobs:
           echo "Checking environment variables..."
           env
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow scikit-learn pandas joblib
@@ -33,9 +33,14 @@ jobs:
           echo "MLFLOW_TRACKING_URI=file:./mlruns" >> $GITHUB_ENV
           mkdir -p mlruns
 
-      - name: Run MLflow Project
+      - name: Run MLflow project
         run: |
           python MLProject/modelling.py 100 10 0.2
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mlflow scikit-learn pandas joblib
 
       - name: Upload to GitHub
         uses: actions/upload-artifact@v4
