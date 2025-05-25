@@ -3,42 +3,44 @@ name: Train Model
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   train:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Debug - List files
-        run: |
-          echo "Current directory:"
-          pwd
-          echo "Files in current directory:"
-          ls -la
-          echo "Python files:"
-          find . -name "*.py" || echo "No Python files found"
-
-      - name: Setup Python
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Check Env
+        run: |
+          echo "Checking environment variables..."
+          env
+
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow scikit-learn pandas joblib
 
-      #  Run as a mlflow project
-      - name: Run mlflow project
+      - name: Set MLflow Tracking URI
+        run: |
+          echo "MLFLOW_TRACKING_URI=http://127.0.0.1:8000" >> $GITHUB_ENV
+
+      - name: Run MLflow Project
         run: |
           python MLProject/modelling.py 100 10 0.2
 
-      - name: Upload model
+      - name: Upload to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: trained-model
           path: |
-            *.joblib
-            *.json
+            **/*.joblib
+            **/model.pkl
+            **/mlruns
