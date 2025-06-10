@@ -40,7 +40,7 @@ jobs:
       # Set MLflow Tracking URI
       - name: Set MLflow Tracking URI
         run: |
-          echo "MLflow Tracking URI">
+          echo "MLFLOW_TRACKING_URI=http://127.0.0.1:8000"
 
       # Run MLflow project
       - name: Run mlflow project
