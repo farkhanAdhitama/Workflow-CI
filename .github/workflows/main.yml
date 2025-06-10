@@ -1,5 +1,5 @@
 name: CI Diabetes
- 
+
 on:
   push:
     branches:
@@ -7,10 +7,10 @@ on:
   pull_request:
     branches:
       - main
- 
+
 env:
   CSV_URL: "MLproject/diabetes_preprocessing.csv"
- 
+
 jobs:
   mlflow-run:
     runs-on: ubuntu-latest
@@ -18,13 +18,13 @@ jobs:
     steps:
       # Set up job
       - name: Checkout repository
-        uses: actions/checkout@v3  
+        uses: actions/checkout@v3
 
       # Set up Python 3.12.7
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.7'
+          python-version: "3.12.7"
 
       # Check Env Variables
       - name: Check Env
@@ -32,7 +32,7 @@ jobs:
           echo $CSV_URL
 
       # install dependencies
-      - name: Install pip & project dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow
@@ -40,22 +40,22 @@ jobs:
       # Set MLflow Tracking URI
       - name: Set MLflow Tracking URI
         run: |
-          echo "MLFLOW_TRACKING_URI=http://127.0.0.1:8000">
+          echo "MLflow Tracking URI">
 
       # Run MLflow project
       - name: Run mlflow project
         run: |
-          mlflow run MLproject --env-manager=local 
+          mlflow run MLproject --env-manager=local
 
       # Run Install Python dependencies
       - name: Install Python dependencies
         run: |
           pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-        
+
       # Upload to Google Drive
       - name: Upload to Google Drive
         env:
-          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}  # Mengambil kredensial dari GitHub Secrets
-          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}  # Mengambil kredensial dari GitHub Secrets
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }} # Mengambil kredensial dari GitHub Secrets
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }} # Mengambil kredensial dari GitHub Secrets
         run: |
           python MLproject/upload_to_gdrive.py
